@@ -1,9 +1,20 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import Response
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
 # Initialize FastAPI
 app = FastAPI()
+
+# Allow CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Replace "*" with a specific domain or list of domains if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # AWS Rekognition client
 rekognition_client = boto3.client('rekognition', region_name='us-east-1')
@@ -40,8 +51,14 @@ async def enroll_face(file: UploadFile = File(...), user_id: str = Form(...)):
 
         if len(response['FaceRecords']) == 0:
             raise HTTPException(status_code=404, detail="No face detected in the image.")
+        
+        headers = {
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
 
-        return {"message": "Face enrolled successfully", "FaceRecords": response['FaceRecords']}
+        return Response(content={"message": "Face enrolled successfully", "FaceRecords": response['FaceRecords']}, headers=headers)
 
     except (BotoCoreError, ClientError) as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -63,8 +80,15 @@ async def search_face(file: UploadFile = File(...)):
 
         if len(response['FaceMatches']) == 0:
             return {"message": "No matching face found"}
+        
+        # Disable client-side caching
+        headers = {
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
 
-        return {"message": "Match found", "FaceMatches": response['FaceMatches']}
+        return Response(content={"message": "Match found", "FaceMatches": response['FaceMatches']}, headers=headers)
 
     except (BotoCoreError, ClientError) as e:
         raise HTTPException(status_code=500, detail=str(e))
