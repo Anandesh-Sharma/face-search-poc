@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import Response
+from fastapi.responses import JSONResponse
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
@@ -58,7 +58,7 @@ async def enroll_face(file: UploadFile = File(...), user_id: str = Form(...)):
             "Expires": "0"
         }
 
-        return Response(content={"message": "Face enrolled successfully", "FaceRecords": response['FaceRecords']}, headers=headers)
+        return JSONResponse(content={"message": "Face enrolled successfully", "FaceRecords": response['FaceRecords']}, headers=headers)
 
     except (BotoCoreError, ClientError) as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -88,7 +88,7 @@ async def search_face(file: UploadFile = File(...)):
             "Expires": "0"
         }
 
-        return Response(content={"message": "Match found", "FaceMatches": response['FaceMatches']}, headers=headers)
+        return JSONResponse(content={"message": "Match found", "FaceMatches": response['FaceMatches']}, headers=headers)
 
     except (BotoCoreError, ClientError) as e:
         raise HTTPException(status_code=500, detail=str(e))
