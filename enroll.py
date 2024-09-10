@@ -4,7 +4,7 @@ import boto3
 rekognition = boto3.client('rekognition', region_name='us-east-1')
 
 # Create a collection to store face data (if not already created)
-collection_id = "my_faces_collection"
+collection_id = "satschel-nonprod-public"
 rekognition.create_collection(CollectionId=collection_id)
 
 def enroll_face(image_path, collection_id):
