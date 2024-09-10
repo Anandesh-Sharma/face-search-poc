@@ -68,12 +68,18 @@ def search_faces_by_image(face_image):
 
     return response['FaceMatches']
 
-def main(image_bytes):
+def main(image_ndarray):
     """
     Main function to detect, crop, and search faces in an image.
     
-    :param image_bytes: The input image in bytes.
+    :param image_ndarray: The input image in ndarray format.
     """
+    # Convert ndarray to bytes
+    image = Image.fromarray(image_ndarray)
+    image_bytes = io.BytesIO()
+    image.save(image_bytes, format='JPEG')
+    image_bytes = image_bytes.getvalue()
+
     # Detect faces in the image
     face_details = detect_faces(image_bytes)
 
@@ -85,8 +91,12 @@ def main(image_bytes):
         matches = search_faces_by_image(face_image)
         print(f"Face {i+1}: {matches}")
 
-# Example usage: pass the image as bytes directly
-with open('/Users/hash/work/satschel/search_by_face_poc/images/two.jpeg', 'rb') as image_file:
-    image_data = image_file.read()
 
-main(image_data)
+import cv2
+image_ndarray = cv2.imread('/Users/hash/work/satschel/search_by_face_poc/images/two.jpeg')
+main(image_ndarray)
+# # Example usage: pass the image as bytes directly
+# with open('/Users/hash/work/satschel/search_by_face_poc/images/two.jpeg', 'rb') as image_file:
+#     image_data = image_file.read()
+
+# main(image_data)

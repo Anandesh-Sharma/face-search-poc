@@ -19,8 +19,6 @@ app.add_middleware(
 # AWS Rekognition client
 rekognition_client = boto3.client('rekognition', region_name='us-east-1')
 
-# AWS Rekognition Collection ID
-COLLECTION_ID = "satschel-nonprod-public"
 
 # Ensure Rekognition collection is created
 def create_collection(collection_id):
@@ -32,18 +30,17 @@ def create_collection(collection_id):
     except (BotoCoreError, ClientError) as e:
         print(f"Error creating collection: {e}")
 
-create_collection(COLLECTION_ID)
-
 
 @app.post("/enroll")
-async def enroll_face(file: UploadFile = File(...), user_id: str = Form(...)):
+async def enroll_face(file: UploadFile = File(...), user_id: str = Form(...), collection_id: str = Form(...) ):
     try:
+        create_collection(collection_id)
         # Read image file as bytes
         image_bytes = await file.read()
 
         # Index the face in the Rekognition collection
         response = rekognition_client.index_faces(
-            CollectionId=COLLECTION_ID,
+            CollectionId=collection_id,
             Image={'Bytes': image_bytes},
             ExternalImageId=user_id,  # Use provided user_id to associate with the face
             DetectionAttributes=['ALL']
