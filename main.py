@@ -20,7 +20,7 @@ app.add_middleware(
 rekognition_client = boto3.client('rekognition', region_name='us-east-1')
 
 # AWS Rekognition Collection ID
-COLLECTION_ID = "satschel_faces_v1"
+COLLECTION_ID = "satschel-nonprod-public"
 
 # Ensure Rekognition collection is created
 def create_collection(collection_id):
